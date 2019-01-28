@@ -1,0 +1,57 @@
+.total-home-page {
+    background-color: #e9ebee;
+    width: 100%;
+    height: auto;
+}
+
+.login-section {
+    border: 1px solid #dddfe2;
+    border-radius: 3px;
+    background-color: #fff;
+    margin-top: 20%;
+    margin-left: 30% !important;
+    margin-right: 30% !important;
+    box-shadow: 0px 0px 1px 1px rgba(225, 225, 225, 0.28);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(225, 225, 225, 0.28);
+    -webkit-box-shadow: 0px 0px 1px 1px rgba(225, 225, 225, 0.28);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.input-password {
+    margin-top: 10px;
+}
+.input-class {
+    box-shadow: none !important;
+    border-radius: 2px !important;
+    border: 1px solid #ccc !important;
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+    font-size: 16px !important;
+    cursor: pointer;
+}
+.input-class:hover, .input-class:active {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+}
+.login-btn {
+    width: 40%;
+    margin-top: 25px;
+    margin-left: 30%;
+    background-color: #3f51b5;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: 700;
+    color: #fff;
+    border: none;
+    border-radius: 2px !important;
+}
+.login-btn:hover, .login-btn:active, .login-btn:focus  {
+    color: #fff !important;
+}

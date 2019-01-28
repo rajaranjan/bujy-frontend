@@ -1,0 +1,13 @@
+.head-section {
+    width: 100%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    background-color: #3f51b5;
+}
+.logo-text {
+    font-size: 25px;
+    color: #fff;
+    font-weight: 750;
+    letter-spacing: 1px;
+}
