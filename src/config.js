@@ -3,7 +3,7 @@ import validUrl from "valid-url";
 
 
 //API Url
-export const API_URL = "http://165.227.240.215:9001/v1/"
+export const API_URL = "http://165.227.240.215:9001/v1"
 
 //User details
 export const User = {
