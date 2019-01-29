@@ -3,7 +3,17 @@ export default {
         "email": "",
         "password": "",
     },
+    poll: {
+        "title": "",
+        "options": [],
+        "option": ""
+    },
     pollData: {
+        poll: {
+            "title": "",
+            "options": [],
+            "option": ""
+        },
         polls: [],
         showModal: false,
         selectedPoll: {}

@@ -2,13 +2,14 @@ import React from 'react';
 import {connect} from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { InputField } from '../../basic/InputField';
+import { Toast } from '../../basic/Toast';
 import { Selector } from '../../basic/Selector';
 import { Validate } from  '../../config';
 import {bindActionCreators } from 'redux';
 import { Modal } from 'react-bootstrap';
 import {PieChart} from 'react-chartkick';
 import Chart from 'chart.js';
-import { LoadPoll, LoadPollFailure, LoadPollSuccess, LoadPollsRequest, LoadPollsSuccess, LoadPollsFailure, RemovePollFailure, RemovePollSuccess,RemovePollRequest } from '../../actions/CreatePoll';
+import { LoadPoll, LoadPollFailure, LoadPollSuccess, LoadPollsRequest, LoadPollsSuccess, LoadPollsFailure, RemovePollFailure, RemovePollSuccess, RemovePollRequest, CloseModal, SubmitVote, SubmitVoteSuccess, SubmitVoteFailure } from '../../actions/CreatePoll';
 
 class PollList extends React.Component {
 
@@ -16,30 +17,32 @@ class PollList extends React.Component {
         super(props);
         this.props = props;
 
-        this.state = {};
         this.handleInitialize = this.handleInitialize.bind(this);
         this.loadList = this.loadList.bind(this);
         this.removePoll = this.removePoll.bind(this);
         this.showPollDetails = this.showPollDetails.bind(this);
         this.close = this.close.bind(this);
         this.onChange = this.onChange.bind(this);
+        this.submitVote = this.submitVote.bind(this);
     }
 
     componentWillMount() {
         //this.handleInitialize();
         this.props.LoadPollsRequest();
     }
+    componentWillReceiveProps(nextProps) {
+    }
     handleInitialize() {
         // const poll = {
         //     "title": "",
         //     "options": [],
         // };
-        var pollData = {};
-        pollData.polls = [];
-        pollData.showModal = false;
-        this.setState({
-            pollData
-        })
+        // var pollData = {};
+        // pollData.polls = [];
+        // pollData.showModal = false;
+        // this.setState({
+        //     pollData
+        // })
 
     }
 
@@ -58,7 +61,7 @@ class PollList extends React.Component {
                                 <span className="pollList-table-show-text" id={poll._id} onClick={this.showPollDetails}>Show</span>   
                             </div>
                             <div className="col-md-3">
-                                <span className="pollList-table-remove-text">Remove</span>
+                                <span className="pollList-table-remove-text" id={poll._id} onClick={this.removePoll}>Remove</span>
                             </div>
                         </div>
                     </div>
@@ -78,33 +81,22 @@ class PollList extends React.Component {
     //show poll details
     showPollDetails(e)
     {
-        // var showModal = true;
-        // var pollData = this.props.pollData;
-        // pollData.showModal = showModal;
-        // this.setState({
-        //     pollData
-        // })
-        console.log(e.target.id);
         this.props.LoadPoll(e.target.id, this.props.pollData);
     }
 
     //modal close
-    close(){
-        var pollData = this.state.pollData
-        pollData.showModal = false;
-        this.setState({ 
-            pollData
-        });
-    }
+    close(){    
+        this.props.CloseModal();
+    }   
 
     //remove a poll
-    removePoll() {
-        this.props.LoginRequest(this.state.poll);
+    removePoll(e) {
+        this.props.RemovePollRequest(e.target.id, this.props.pollData);
     }
 
     //submitting the option
-    submitPoll() {
-
+    submitVote(e) {
+        this.props.SubmitVote(e.option, this.props.pollData);
     }
 
     //onchange of option
@@ -112,7 +104,7 @@ class PollList extends React.Component {
         
     }
     render() {
-        const { handleSubmit, submitting, error } = this.props;
+        const { handleSubmit, submitting, error, showModal, selectedPoll } = this.props;
         return (
             
             <section className="pollList-section">
@@ -132,47 +124,56 @@ class PollList extends React.Component {
                             <span className="pollList-table-title">REMOVE</span>
                         </div>
                 </div>
-                {console.log("sss",this.props)}
-                {this.props.pollData &&
+                {this.props.pollReducer.deleted && 
+                     <Toast 
+                        text="Deleted poll"
+                        classname = "show"
+                    />
+                }
+                {this.props.pollData && this.props.pollData.polls &&
                     <div>
                     {this.loadList(this.props.pollData.polls)}
-                    <Modal show={this.props.pollData.showModal} onHide={this.close}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Modal heading</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <div className="col-md-6 modal-content-section">
-                                        <form onSubmit={handleSubmit(this.submitPoll.bind(this))} className="newPoll">
-                                            <div className="row">
-                                                <span className="modal-content-title">I would like to vote for:</span>
-                                            </div>
-                                            <div className="row">
-                                                <div className="col-md-8">
-                                                    <Field
-                                                        component={Selector}
-                                                        name="option"
-                                                        id="option"
-                                                        label="Select Options"
-                                                        className="option-selctor"
-                                                        onChange={this.onChange}
-                                                    />
+                    {showModal && 
+                        <Modal show={showModal} onHide={this.close}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>{selectedPoll.title}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <div className="row">
+                                    <div className="col-md-6">
+                                        <div className="col-md-6 modal-content-section">
+                                            <form onSubmit={handleSubmit(this.submitVote.bind(this))} className="pollList">
+                                                <div className="row">
+                                                    <span className="modal-content-title">I would like to vote for:</span>
                                                 </div>
-                                                <div className="col-md-4">
-                                                    <button className="btn btn-primary btn-md submit-btn" type="submit">SUBMIT</button>
-                                                </div>                                 
-                                            </div>
-                                        </form>
+                                                <div className="row">
+                                                    <div className="col-md-8 selector-section">
+                                                        <Field
+                                                            component={Selector}
+                                                            name="option"
+                                                            id="option"
+                                                            label="Select Options"
+                                                            className="option-selctor"
+                                                            values={ selectedPoll.options }
+                                                            onChange={this.onChange}
+                                                        />
+                                                    </div>
+                                                    <div className="col-md-4">
+                                                        <button className="btn btn-primary btn-md submit-btn" type="submit">SUBMIT</button>
+                                                    </div>                                 
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        {console.log("Sss",selectedPoll)}
+                                        <PieChart data={selectedPoll.votes} />
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <PieChart data={[["Blueberry", 50], ["Strawberry", 5],["banana", 25],["acrot", 15],["papita", 5]]} />
-                                </div>
-                            </div>
 
-                        </Modal.Body>
-                    </Modal>
+                            </Modal.Body>
+                        </Modal>
+                    }
                     </div>
                 }
             </section>
@@ -196,19 +197,26 @@ let pollList =  reduxForm({
 
 //accessing state from reducer 
 function mapStateToProps(state, ownProps) { 
-    console.log("state",state);
-    return {
-        pollData: state.pollReducer.pollData
-    };
+    
+    if(state.pollReducer.pollData) {
+        return {
+            pollReducer: state.pollReducer,
+            pollData: state.pollReducer.pollData,
+            showModal: state.pollReducer.pollData.showModal,
+            selectedPoll: state.pollReducer.pollData.selectedPoll    
+        };
+    }
+    
 }
 
 //determines what action available in a component
 function mapDispatchToProps(dispatch) {
 
     return bindActionCreators({
-        LoadPoll, LoadPollFailure, LoadPollSuccess, 
         LoadPollsRequest, LoadPollsSuccess, LoadPollsFailure,
-        RemovePollFailure, RemovePollSuccess,RemovePollRequest
+        LoadPoll, LoadPollFailure, LoadPollSuccess,         
+        RemovePollFailure, RemovePollSuccess,RemovePollRequest,
+        CloseModal, SubmitVote, SubmitVoteSuccess, SubmitVoteFailure
     }, dispatch);
 }
 

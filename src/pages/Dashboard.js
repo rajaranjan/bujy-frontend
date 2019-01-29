@@ -13,7 +13,7 @@ class Dashboard extends React.Component {
     }
     
     componentWillMount() {
-        console.log("comp-Dash");
+        
     }
 
     render() {

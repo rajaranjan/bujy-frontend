@@ -14,12 +14,13 @@ body {
   padding-top: 16px;
   position: fixed;
   z-index: 1;
-  left: 45%;
-  bottom: 30px;
   padding-bottom: 15px;
-  padding-right: 30px;
-  padding-left: 35px;
+  padding-right: 80px;
+  padding-left: 80px;
   animation-fill-mode: forwards;
+  bottom: 0px;
+  right: 0px;
+  margin-left: 30%;
 }
 
 .toast.show {

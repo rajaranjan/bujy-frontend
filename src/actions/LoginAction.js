@@ -4,7 +4,6 @@ import { API_URL,User } from '../config'
 import axios from 'axios';
 
 export function LoginRequest(values) {
-	console.log("values",values);
 	
 	return (dispatch) => {
 		axios.post( API_URL + '/user/login', {

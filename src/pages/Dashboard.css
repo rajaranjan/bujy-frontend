@@ -174,7 +174,31 @@
 .modal-content-title {
     font-size: 16px;
     font-weight: 500;
+    float: left;
+    margin-left: 15px;
 }
 .modal-content-section {
     width: 100% !important;
+}
+
+/* Selector area */
+.selector-section {
+    
+}
+.selector-class {
+    border: 1px solid #ccc;
+    width: 100%;
+}
+.selector-area {
+    width: 90% !important;
+    border: none !important;
+    padding: 0px;
+    margin: 0px;
+    overflow: none;
+    box-shadow: none;
+    display: inline !important; 
+}
+.down-arrow {
+    margin-top: 3px !important;
+    margin-right: 2% !important;
 }

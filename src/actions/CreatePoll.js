@@ -16,6 +16,12 @@ export function LoadPollsRequest(values) {
 			.then((polls) => {
 				console.log(polls.data.data);
 				var pollData = {}
+				let poll = {
+						"title": "",
+						"options": [],
+						"option": ""
+				}
+				pollData.poll = poll;
 				pollData.polls = polls.data.data;
 				pollData.showModal = false;
 				dispatch(LoadPollsSuccess(pollData))
@@ -38,11 +44,56 @@ export function LoadPollsSuccess(value) {
 	};
 }
 
+//add poles 
+export function AddPollsToUi(poll) {
+	return (dispatch) => {
+		dispatch(AddPollsToUiSuccess(poll))
+	}
+}
+export function AddPollsToUiSuccess(value) {
+	return {
+		type:  types.ADD_POLL_UI_SUCCESS,
+		payload: value
+	};
+}
+
+export function AddPollsToUiFailure(value) {
+	return {
+		type:  types.ADD_POLL_UI_FAILURE,
+		payload: value
+	};
+}
+
 //create poll action 
 export function CreatePollRequest(values) {
-	console.log("ok",values);
+	let data = {};
+	data.options = values.options;
+	data.title = values.title;
 	return (dispatch) => {
-		dispatch(push('/login'));
+		let token = User.getAccessToken();
+		axios.post(API_URL + '/poll', data, {
+			headers: {
+				'Content-Type': 'application/json',
+				"Access-Control-Allow-Origin": "*",
+				'Authorization': token
+			}
+		})
+		.then((polls) => {
+			console.log(polls.data.data);
+			var pollData = {}
+			pollData.polls = polls.data.data;
+			pollData.showModal = false;
+			let poll = {
+				"title": "",
+				"options": [],
+				"option": ""
+			};
+			pollData.poll = poll;
+			dispatch(CreatePollSuccess(pollData))
+		})
+		.catch((error) => {
+			dispatch(CreatePollFailure(error));
+		})
 	}
 }
 export function CreatePollFailure(error) {
@@ -69,9 +120,24 @@ export function LoadPoll(id, pollData) {
 				}
 			})
 			.then((poll) => {
-				console.log(poll.data.data);
-				console.log("pollData",pollData);
-				pollData.selectedPoll = poll.data.data;
+					console.log(poll.data.data);
+					pollData.selectedPoll = poll.data.data;
+					let voteList = []
+					let votes = pollData.selectedPoll.votes;
+					let i = 0;
+					let count = 0;
+					votes.map((vote,index) => {
+						count = count + vote.number;
+					})
+					votes.map((vote, index) => {
+						let option = vote.option;
+						let number = Math.floor((vote.number/count) * 100);
+						let arr = [];
+						arr.push(option);
+						arr.push(number);
+						voteList.push(arr);
+					})
+				pollData.selectedPoll.votes = voteList;
 				pollData.showModal = true;
 				dispatch(LoadPollSuccess(pollData));
 			})
@@ -94,11 +160,34 @@ export function LoadPollFailure(error) {
 	};
 }
 // remove poll 
-export function RemovePollRequest(values) {
-	console.log("ok",values);
+export function RemovePollRequest(id,poll) {
+	console.log("ok",poll);
+	let pollData;
 	return (dispatch) => {
-		dispatch(push('/login'));
-	}
+		let token = User.getAccessToken();
+		return axios.delete(API_URL + '/poll/'+id, {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': token
+				}
+			})
+			.then((polls) => {
+					console.log("remove",polls);
+					pollData.polls = polls.data.data;
+					pollData.showModal = false;
+					let pollSingle = {
+						"title": "",
+						"options": [],
+						"option": ""
+					};
+					pollData.poll = pollSingle;	
+					console.log("remove",pollData);
+					dispatch(RemovePollSuccess(pollData));
+			})
+			.catch((error) => {
+				dispatch(RemovePollFailure(error));
+			})
+		}
 }
 export function RemovePollFailure(error) {
 	return {
@@ -109,6 +198,84 @@ export function RemovePollFailure(error) {
 export function RemovePollSuccess(value) {
 	return {
 		type:  types.REMOVE_POLL_SUCCESS,
+		payload: value
+	};
+}
+
+//close modal 
+export function CloseModal() {
+	// data.showModal = false;
+	return (dispatch) => {
+		dispatch(CloseModalSuccess());
+	}
+}
+export function CloseModalSuccess(value) {
+		return {
+			type:  types.CLOSE_MODAL_SUCCESS,
+			payload: value
+		};
+}
+
+//submit poll 
+export function SubmitVote(option, data) {
+	console.log("submit",data);
+	return (dispatch) => {
+		let token = User.getAccessToken();
+		return axios.post(API_URL + '/poll/vote',{
+				"option": option,
+				"pollId": data.selectedPoll._id
+			}, {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': token
+				}
+			})
+			.then((recvdata) => {
+				if (recvdata.status == 200) {
+					return axios.get(API_URL + '/poll/' + data.selectedPoll._id, {
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': token
+						}
+					})
+				}
+			})
+			.then((selectedPoll) => {
+						data.selectedPoll = selectedPoll.data.data;
+						let voteList = []
+						let votes = data.selectedPoll.votes;
+						let i = 0;
+						let count = 0;
+						votes.map((vote,index) => {
+							count = count + vote.number;
+						})
+						votes.map((vote, index) => {
+							let option = vote.option;
+							let number = Math.floor((vote.number/count) * 100);
+							let arr = [];
+							arr.push(option);
+							arr.push(number);
+							voteList.push(arr);
+						})
+					data.selectedPoll.votes = voteList;
+					data.showModal = true;
+					dispatch(SubmitVoteSuccess(data));
+			})
+			.catch((error) => {
+				dispatch(SubmitVoteFailure(error));
+			})
+		}
+}
+
+export function SubmitVoteSuccess(value) {
+		return {
+			type:  types.SUBMIT_VOTE_SUCCESS,
+			payload: value
+		};
+}
+export function SubmitVoteFailure(value) {
+	return {
+		type:  types.SUBMIT_VOTE_SUCCESS,
 		payload: value
 	};
 }

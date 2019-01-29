@@ -27,8 +27,6 @@ export default function loginReducer(state = initialState.user, action) {
             //     profile: {
             //     }
             //   });
-            console.log("action",action);
-            console.log("state",state);
             return Object.assign({}, state, {
                // profile: action.payload,
                 requesting: false,
